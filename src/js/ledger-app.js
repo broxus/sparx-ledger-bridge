@@ -14,6 +14,13 @@ const FLAG_WITH_WALLET_ID = 1 << 0
 const FLAG_WITH_WORKCHAIN_ID = 1 << 1
 const FLAG_WITH_ADDRESS = 1 << 2
 const FLAG_WITH_CHAIN_ID = 1 << 3
+
+const SIGN_MODE_EMPTY = 0
+const SIGN_MODE_SIGNATURE_ID = 1
+const SIGN_MODE_SIGNATURE_DOMAIN = 2
+const SIGN_MODE_SIGNATURE_DOMAIN_L2 = 3
+const SIGN_MODE_SHIFT = 3
+
 const MAX_CHUNK_SIZE = 255
 
 export default class LedgerApp {
@@ -140,7 +147,7 @@ export default class LedgerApp {
             })
     }
 
-    async signTransaction({ account, originalWallet, wallet, message, chainId, context }) {
+    async signTransaction({ account, originalWallet, wallet, message, signatureContext, context }) {
         // params.account, params.originalWallet, params.wallet, params.message, params.context
         let metadata = 0
         const optional = []
@@ -179,11 +186,26 @@ export default class LedgerApp {
             optional.push(Buffer.from(context.address, 'hex'))
         }
 
-        if (typeof chainId === 'number') {
-            const b = Buffer.alloc(4)
-            b.writeInt32BE(chainId, 0)
+        const { signatureType, globalId } = signatureContext
+        let mode
+        if (signatureType.type === 'empty') {
+            mode = SIGN_MODE_EMPTY
+        } else if (signatureType.type === 'signatureId') {
+            mode = SIGN_MODE_SIGNATURE_ID
+        } else if (signatureType.type === 'signatureDomain' && typeof globalId === 'number') {
+            mode = SIGN_MODE_SIGNATURE_DOMAIN_L2
+        } else {
+            mode = SIGN_MODE_SIGNATURE_DOMAIN
+        }
+        metadata |= mode << SIGN_MODE_SHIFT
 
-            metadata |= FLAG_WITH_CHAIN_ID
+        if (mode === SIGN_MODE_SIGNATURE_ID) {
+            const b = Buffer.alloc(4)
+            b.writeInt32BE(globalId, 0)
+            optional.push(b)
+        } else if (mode === SIGN_MODE_SIGNATURE_DOMAIN_L2) {
+            const b = Buffer.alloc(4)
+            b.writeInt32LE(globalId, 0)
             optional.push(b)
         }
 
