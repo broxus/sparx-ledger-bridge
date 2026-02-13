@@ -18,7 +18,6 @@ const FLAG_WITH_CHAIN_ID = 1 << 3
 const SIGN_MODE_EMPTY = 0
 const SIGN_MODE_SIGNATURE_ID = 1
 const SIGN_MODE_SIGNATURE_DOMAIN = 2
-const SIGN_MODE_SIGNATURE_DOMAIN_L2 = 3
 const SIGN_MODE_SHIFT = 3
 
 const MAX_CHUNK_SIZE = 255
@@ -188,14 +187,12 @@ export default class LedgerApp {
 
         const { signatureType, globalId } = signatureContext
         let mode
-        if (signatureType.type === 'empty') {
-            mode = SIGN_MODE_EMPTY
-        } else if (signatureType.type === 'signatureId') {
+        if (signatureType.type === 'signatureId') {
             mode = SIGN_MODE_SIGNATURE_ID
         } else if (signatureType.type === 'signatureDomain' && typeof globalId === 'number') {
-            mode = SIGN_MODE_SIGNATURE_DOMAIN_L2
-        } else {
             mode = SIGN_MODE_SIGNATURE_DOMAIN
+        } else {
+            mode = SIGN_MODE_EMPTY
         }
         metadata |= mode << SIGN_MODE_SHIFT
 
@@ -203,7 +200,7 @@ export default class LedgerApp {
             const b = Buffer.alloc(4)
             b.writeInt32BE(globalId, 0)
             optional.push(b)
-        } else if (mode === SIGN_MODE_SIGNATURE_DOMAIN_L2) {
+        } else if (mode === SIGN_MODE_SIGNATURE_DOMAIN) {
             const b = Buffer.alloc(4)
             b.writeInt32LE(globalId, 0)
             optional.push(b)
