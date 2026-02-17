@@ -3,7 +3,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 /** @type {import('vite').UserConfig} */
 export default {
   root: 'src',
-  base: '/everscale-ledger-bridge/',
+  base: '/sparx-ledger-bridge/',
   build: {
     outDir: '../docs',
     assetsDir: './',

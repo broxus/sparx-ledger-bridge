@@ -4,4 +4,4 @@
   </a>
 </p>
 
-# Everscale Ledger Bridge
+# Sparx Ledger Bridge
