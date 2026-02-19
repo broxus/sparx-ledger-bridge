@@ -185,11 +185,11 @@ export default class LedgerApp {
             optional.push(Buffer.from(context.address, 'hex'))
         }
 
-        const { signatureType, globalId } = signatureContext
+        const { type: signatureType, globalId } = signatureContext
         let mode
-        if (signatureType.type === 'signatureId') {
+        if (signatureType === 'signatureId') {
             mode = SIGN_MODE_SIGNATURE_ID
-        } else if (signatureType.type === 'signatureDomain' && typeof globalId === 'number') {
+        } else if (signatureType === 'signatureDomainL2' && typeof globalId === 'number') {
             mode = SIGN_MODE_SIGNATURE_DOMAIN
         } else {
             mode = SIGN_MODE_EMPTY
